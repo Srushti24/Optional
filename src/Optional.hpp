@@ -7,7 +7,7 @@
 template<typename T>
 class Optional{
     public:
-    Optional():has_value_(false)
+    Optional():has_value_(false) // Default constructor
     {
         std::cout << "Default Constructor called" << std::endl;
     }
@@ -32,7 +32,7 @@ class Optional{
         std::cout << "Copy constructor called" << std::endl;
         if(copy.has_value_)
         {
-            new(data_)T(*reinterpret_cast<const T*>(copy.data_));
+            new(data_)T(copy.value());
         }
         has_value_ = copy.has_value_;
     }
@@ -43,10 +43,9 @@ class Optional{
         std::cout << "Move constructor called" << std::endl;
         if(copy.has_value_)
         {
-            new(data_)T(std::move(*reinterpret_cast<T*>(copy.data_)));
+            new(data_)T(std::move(copy.value()));
         }
         has_value_ = copy.has_value_;
-        copy.has_value_ = false;
     }
 
     //Move Assignment Operator
@@ -56,10 +55,9 @@ class Optional{
         destroy();
         if(copy.has_value_)
         {
-            new(data_)T(std::move(*reinterpret_cast<T*>(copy.data_)));
+            new(data_)T(std::move(copy.value()));
         }
         has_value_ = copy.has_value_;
-        copy.has_value_ = false;
         return *this;
     }
 
@@ -68,20 +66,26 @@ class Optional{
         return has_value_;
     }
 
-    T& value()
+    const T& value() const
     {
-        T* temp = reinterpret_cast<T*>(data_);
+        const T* temp = reinterpret_cast<const T*>(data_);
+        return *temp;
+    }
+
+    T& value() 
+    {
+         T* temp = reinterpret_cast<T*>(data_);
         return *temp;
     }
 
     //Copy Assignment Operator
-    Optional& operator=(Optional& copy)
+    Optional& operator=(const Optional& copy)
     {
         std::cout << "Copy Assignment called" << std::endl;
         destroy();
         if(copy.has_value_)
         {
-            new(data_)T(*(reinterpret_cast<T*>(copy.data_)));
+            new(data_)T(copy.value());
         }
         has_value_ = copy.has_value_;
         return *this;
