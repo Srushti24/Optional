@@ -39,7 +39,7 @@ void testWithS() {
             destructionCount_++;
         }
 
-        S(const S& copy)
+        S(const S& copy) // Copy Constructor
             : constructionCount_(copy.constructionCount_), destructionCount_(copy.destructionCount_) // copy constructor
         {
             std::cout << "copy constructor of S called" << std::endl;
@@ -52,6 +52,17 @@ void testWithS() {
             destructionCount_  = copy.destructionCount_;
             std::cout << "copy assignment operator of S called" << std::endl;
             constructionCount_++;
+            return *this;
+        }
+
+        S(S&& copy): constructionCount_(copy.constructionCount_), 
+        destructionCount_(copy.destructionCount_){ // Move Constructor
+        std::cout << "Move constructor of S called" << std::endl;
+        }
+
+        S& operator=(S&& copy){   // Move Assignment Operator
+            constructionCount_ = copy.constructionCount_;
+            destructionCount_ = copy.destructionCount_;
             return *this;
         }
 
