@@ -1,14 +1,98 @@
+#ifndef OPTIONAL_HPP
+#define OPTIONAL_HPP
 
-template<typedef T>
-class Optional{
+#include <iostream>
+#include <memory>
 
-    public:
+template <typename T> class Optional {
+  public:
     Optional()
+        : has_value_(false) // Default constructor
     {
+        std::cout << "Default Constructor called" << std::endl;
     }
-    ~Optional();
 
-    private:
-    T* m_ptr;
+    // Param Constructor
+    Optional(const T& value) : has_value_(true) {
+        std::cout << "Param Constrcutor called" << std::endl;
+        new (data_) T(value);
+    }
 
-}
+    // Param Constructor Move
+    Optional(T&& value) : has_value_(true) {
+        std::cout << "Param Constrcutor move called" << std::endl;
+        new (data_) T(std::move(value));
+    }
+
+    // Copy constructor
+    Optional(const Optional& copy) {
+        std::cout << "Copy constructor called" << std::endl;
+        if (copy.has_value_) {
+            new (data_) T(copy.value());
+        }
+        has_value_ = copy.has_value_;
+    }
+
+    // Move constructor
+    Optional(Optional&& copy) {
+        std::cout << "Move constructor called" << std::endl;
+        if (copy.has_value_) {
+            new (data_) T(std::move(copy.value()));
+        }
+        has_value_ = copy.has_value_;
+    }
+
+    // Move Assignment Operator
+    Optional& operator=(Optional&& copy) {
+        std::cout << "Move Assignment called" << std::endl;
+        destroy();
+        if (copy.has_value_) {
+            new (data_) T(std::move(copy.value()));
+        }
+        has_value_ = copy.has_value_;
+        return *this;
+    }
+
+    bool has_value() const { return has_value_; }
+
+    const T& value() const {
+        const T* temp = reinterpret_cast<const T*>(data_);
+        return *temp;
+    }
+
+    T& value() {
+        T* temp = reinterpret_cast<T*>(data_);
+        return *temp;
+    }
+
+    // Copy Assignment Operator
+    Optional& operator=(const Optional& copy) {
+        std::cout << "Copy Assignment called" << std::endl;
+        destroy();
+        if (copy.has_value_) {
+            new (data_) T(copy.value());
+        }
+        has_value_ = copy.has_value_;
+        return *this;
+    }
+
+    ~Optional() {
+        std::cout << "destructor of optional called" << std::endl;
+        destroy();
+    }
+    void destroy() {
+        if (has_value_) {
+            reinterpret_cast<T*>(data_)->~T();
+            has_value_ = false;
+        }
+    }
+
+  private:
+    /*INVARIENT: If has_value__ is true then there is an object constructed at data_
+    if has_value__ is false then no object is constructed there.
+     */
+    bool has_value_;
+    char data_[sizeof(T)];
+};
+
+#endif

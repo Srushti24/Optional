@@ -1,6 +1,6 @@
 # Add the executable target
 add_executable(Optional
-    main.cpp)
+    optional_test.cpp)
 
 # Add the library target (no source file needed for header-only)
 add_library(Optionallib INTERFACE)
