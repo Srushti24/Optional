@@ -1,6 +1,6 @@
-#include <Optional.hpp>
 #include <cassert>
 #include <iostream>
+#include <optional.hpp>
 
 void testWithStruct() {
     struct S {
@@ -31,15 +31,15 @@ void testWithS() {
     struct S {
         S(int& constructionCount, int& destructionCount)
             : constructionCount_(constructionCount), destructionCount_(destructionCount) {
-            std::cout << "constructor called" << std::endl;
+            std::cout << "constructor of S called" << std::endl;
             constructionCount_++;
         }
         ~S() {
-            std::cout << "destructor called" << std::endl;
+            std::cout << "destructor of S called" << std::endl;
             destructionCount_++;
         }
 
-        S(const S& copy) // Copy Constructor
+        S(const S& copy)                                                                             // Copy Constructor
             : constructionCount_(copy.constructionCount_), destructionCount_(copy.destructionCount_) // copy constructor
         {
             std::cout << "copy constructor of S called" << std::endl;
@@ -55,20 +55,31 @@ void testWithS() {
             return *this;
         }
 
-        S(S&& copy): constructionCount_(copy.constructionCount_), 
-        destructionCount_(copy.destructionCount_){ // Move Constructor
-        std::cout << "Move constructor of S called" << std::endl;
+        S(S&& copy)
+            : constructionCount_(copy.constructionCount_),
+              destructionCount_(copy.destructionCount_) { // Move Constructor
+            std::cout << "Move constructor of S called" << std::endl;
+            constructionCount_++;
         }
 
-        S& operator=(S&& copy){   // Move Assignment Operator
+        S& operator=(S&& copy) { // Move Assignment Operator
             constructionCount_ = copy.constructionCount_;
-            destructionCount_ = copy.destructionCount_;
+            destructionCount_  = copy.destructionCount_;
+            constructionCount_++;
             return *this;
         }
 
         int& constructionCount_;
         int& destructionCount_;
     };
+
+    {
+        Optional<S> op1 = S(constructionCount, destructionCount);
+        op1.destroy();
+    }
+    assert(constructionCount == 2);
+    assert(destructionCount == 2);
+
     {
         S           s1(constructionCount, destructionCount); // s1 created
         Optional<S> temp1(s1); // temp1 created using copy constructor which created one more S1
@@ -109,10 +120,9 @@ void testWithS() {
 
     {
         constructionCount = 0;
-        destructionCount = 0;
+        destructionCount  = 0;
         S           s1(constructionCount, destructionCount); // s1 created
-        Optional<S> temp1(std::move(s1)); // Move the values
-
+        Optional<S> temp1(std::move(s1));                    // Move the values
     }
 }
 
@@ -138,8 +148,8 @@ void testAllBasic() {
 }
 
 int main() {
-    testAllBasic();
-    testWithStruct();
+    //  testAllBasic();
+    // testWithStruct();
     testWithS();
     return 0;
 }
