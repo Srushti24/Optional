@@ -53,7 +53,7 @@ template <typename T> class Optional {
         return *this;
     }
 
-    bool has_value() { return has_value_; }
+    bool has_value() const { return has_value_; }
 
     const T& value() const {
         const T* temp = reinterpret_cast<const T*>(data_);
@@ -88,7 +88,8 @@ template <typename T> class Optional {
     }
 
   private:
-    /*INVARIENT: Only if has_value_ is set to true data_ has value
+    /*INVARIENT: If has_value__ is true then there is an object constructed at data_
+    if has_value__ is false then no object is constructed there.
      */
     bool has_value_;
     char data_[sizeof(T)];

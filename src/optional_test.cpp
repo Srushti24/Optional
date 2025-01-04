@@ -108,6 +108,8 @@ void testWithS() {
     assert(constructionCount == destructionCount);
     assert(constructionCount == 5);
 
+    constructionCount = 0;
+    destructionCount  = 0;
     {
         S           s1(constructionCount, destructionCount); // s1 created
         Optional<S> temp1(s1); // temp1 created using copy constructor which created one more S1
