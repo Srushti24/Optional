@@ -51,7 +51,6 @@ void testWithS() {
             constructionCount_ = copy.constructionCount_;
             destructionCount_  = copy.destructionCount_;
             std::cout << "copy assignment operator of S called" << std::endl;
-            constructionCount_++;
             return *this;
         }
 
@@ -79,6 +78,35 @@ void testWithS() {
     }
     assert(constructionCount == 2);
     assert(destructionCount == 2);
+
+    constructionCount = 0;
+    destructionCount  = 0;
+    {
+        S           s1(constructionCount, destructionCount); // s1 created
+        Optional<S> op1(s1);
+        Optional<S> op2(std::move(op1)); // Move constructor called
+        std::cout << "construction done" << std::endl;
+    }
+    assert(constructionCount == 3);
+    assert(destructionCount == 3);
+    assert(constructionCount == destructionCount);
+
+    constructionCount = 0;
+    destructionCount  = 0;
+
+    {
+        S           s1(constructionCount, destructionCount); // s1 created
+        Optional<S> op1(s1);
+        assert(op1.value().constructionCount_ == 2);
+        S           s2(constructionCount, destructionCount); // s2 created
+        Optional<S> op2(s2);
+        assert(op2.value().constructionCount_ == 4);
+        op1 = op2;
+        assert(destructionCount == 1);
+        assert(op2.has_value() == true);
+    }
+    assert(constructionCount == destructionCount);
+    assert(constructionCount == 5);
 
     {
         S           s1(constructionCount, destructionCount); // s1 created
@@ -111,11 +139,8 @@ void testWithS() {
             assert(temp2.value().constructionCount_ == 3);
             assert(constructionCount == 3);
         }
-        std::cout << "before" << std::endl;
         assert(temp1.value().destructionCount_ == 1); // temp2 destroyed
-        std::cout << "after" << std::endl;
     }
-    std::cout << "after 2" << std::endl;
     assert(destructionCount == 3); // s1 and temp1 destroyed
 
     {

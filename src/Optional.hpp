@@ -39,8 +39,7 @@ template <typename T> class Optional {
         if (copy.has_value_) {
             new (data_) T(std::move(copy.value()));
         }
-        has_value_      = copy.has_value_;
-        copy.has_value_ = false;
+        has_value_ = copy.has_value_;
     }
 
     // Move Assignment Operator
